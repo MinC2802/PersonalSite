@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CYBER_CORE // OS v2.04</title>
+  <style>
+    :root {
+      --bg-color: #0d110d;
+      --term-green: #33ff33;
+      --dim-green: #1a881a;
+      --amber: #ffb000;
+      --border-color: #1e4d1e;
+      --scanline-color: rgba(18, 16, 16, 0.4);
+      --font-stack: "Courier New", Courier, monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-color);
+      color: var(--term-green);
+      font-family: var(--font-stack);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      text-shadow: 0 0 5px rgba(51, 255, 51, 0.45);
+    }
+
+    /* CRT Scanline & Screen Glow Overlay */
+    body::before {
+      content: " ";
+      display: block;
+      position: absolute;
+      top: 0; left: 0; bottom: 0; right: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
+                  linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 3px 100%;
+      z-index: 100;
+      pointer-events: none;
+    }
+
+    /* Top Navigation / Status Bar */
+    nav {
+      height: 42px;
+      border-bottom: 2px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 20px;
+      background: #080c08;
+      font-size: 0.85rem;
+      letter-spacing: 1px;
+    }
+
+    .nav-left, .nav-right {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .badge {
+      border: 1px solid var(--term-green);
+      padding: 2px 6px;
+      font-size: 0.7rem;
+    }
+
+    .alert {
+      color: var(--amber);
+      text-shadow: 0 0 5px var(--amber);
+    }
+
+    /* Main Workspace Layout */
+    .workspace {
+      display: flex;
+      flex: 1;
+      height: calc(100vh - 42px);
+      padding: 10px;
+      gap: 10px;
+    }
+
+    .panel {
+      border: 1px solid var(--border-color);
+      background: rgba(0, 20, 0, 0.2);
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    .panel-header {
+      background: #112411;
+      color: var(--term-green);
+      padding: 5px 12px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* Left Console */
+    .console-panel {
+      flex: 1.3;
+    }
+
+    .terminal-body {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .terminal-body::-webkit-scrollbar {
+      width: 6px;
+    }
+    .terminal-body::-webkit-scrollbar-thumb {
+      background: var(--dim-green);
+    }
+
+    .log-line {
+      margin-bottom: 4px;
+      word-break: break-all;
+    }
+
+    .system-msg {
+      color: var(--dim-green);
+    }
+
+    /* Input Line & Blinking Cursor */
+    .input-line {
+      display: flex;
+      align-items: center;
+      margin-top: 5px;
+    }
+
+    .prompt {
+      margin-right: 8px;
+      user-select: none;
+      font-weight: bold;
+    }
+
+    .cli-input {
+      background: transparent;
+      border: none;
+      outline: none;
+      color: var(--term-green);
+      font-family: inherit;
+      font-size: inherit;
+      flex: 1;
+      text-shadow: inherit;
+      caret-color: transparent; /* custom cursor used */
+    }
+
+    /* Retro Block Cursor attached to input focus */
+    .cursor {
+      display: inline-block;
+      width: 9px;
+      height: 1.1em;
+      background: var(--term-green);
+      animation: blink 0.9s infinite;
+      vertical-align: middle;
+      margin-left: 2px;
+    }
+
+    @keyframes blink {
+      0%, 49% { opacity: 1; }
+      50%, 100% { opacity: 0; }
+    }
+
+    /* Right ASCII Canvas Panel */
+    .visual-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .ascii-canvas-container {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #050a05;
+      overflow: hidden;
+    }
+
+    pre#ascii-art {
+      font-size: 9px;
+      line-height: 9px;
+      color: var(--term-green);
+      user-select: none;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation / Status Header -->
+  <nav>
+    <div class="nav-left">
+      <span class="badge">SEC_LEVEL: 0</span>
+      <span>SYS_ID: 0xDEADBEEF</span>
+      <span class="alert">[OVERRIDE ACTIVE]</span>
+    </div>
+    <div class="nav-right">
+      <span id="node-clock">00:00:00 UTC</span>
+      <span class="badge">NET: LINKED</span>
+    </div>
+  </nav>
+
+  <!-- Split Screen Workspace -->
+  <div class="workspace">
+    <!-- Left Panel: Interactive Console -->
+    <div class="panel console-panel" id="console-wrapper">
+      <div class="panel-header">
+        <span>Terminal Emulator // vTY100</span>
+        <span>ROOT@CYBER</span>
+      </div>
+      <div class="terminal-body" id="term-logs">
+        <div class="log-line system-msg">CORE INITIALIZED... [OK]</div>
+        <div class="log-line system-msg">ESTABLISHING ENCRYPTED TUNNEL... [DONE]</div>
+        <div class="log-line system-msg">Type 'help' to inspect available instructions.</div>
+        <br />
+      </div>
+      <div style="padding: 10px 15px; border-top: 1px solid var(--border-color);">
+        <div class="input-line">
+          <span class="prompt">root@node:~#</span>
+          <input type="text" id="term-input" class="cli-input" autofocus autocomplete="off" spellcheck="false" />
+          <span class="cursor"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel: Moving 3D ASCII Animation -->
+    <div class="panel visual-panel">
+      <div class="panel-header">
+        <span>VECTOR PROJECTION // TORUS MATRIX</span>
+        <span>FPS: 30</span>
+      </div>
+      <div class="ascii-canvas-container">
+        <pre id="ascii-art"></pre>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /* ==========================================================
+       1. Top Nav Clock
+       ========================================================== */
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('node-clock').innerText = now.toTimeString().split(' ')[0] + " LOC";
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    /* ==========================================================
+       2. Left Panel: Interactive Terminal
+       ========================================================== */
+    const termInput = document.getElementById('term-input');
+    const termLogs = document.getElementById('term-logs');
+    const consoleWrapper = document.getElementById('console-wrapper');
+
+    // Click anywhere on console to focus input
+    consoleWrapper.addEventListener('click', () => termInput.focus());
+
+    termInput.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        const input = this.value.trim();
+        if (input !== '') {
+          handleCommand(input);
+          this.value = '';
+          termLogs.scrollTop = termLogs.scrollHeight;
+        }
+      }
+    });
+
+    function printLine(text, style = '') {
+      const line = document.createElement('div');
+      line.className = 'log-line ' + style;
+      line.innerText = text;
+      termLogs.appendChild(line);
+      termLogs.scrollTop = termLogs.scrollHeight;
+    }
+
+    function handleCommand(cmd) {
+      // Echo input
+      printLine(`root@node:~# ${cmd}`);
+
+      const parts = cmd.toLowerCase().split(' ');
+      const action = parts[0];
+
+      switch (action) {
+        case 'help':
+          printLine("Available commands:");
+          printLine("  help     - display available instructions");
+          printLine("  clear    - clear console buffer");
+          printLine("  status   - check subsystem health");
+          printLine("  matrix   - run simulated buffer stream");
+          printLine("  date     - print current node timestamp");
+          break;
+
+        case 'clear':
+          termLogs.innerHTML = '';
+          break;
+
+        case 'status':
+          printLine("CORE: OK");
+          printLine("MEM_USAGE: 3.2% allocated");
+          printLine("NETWORK: 1Gbps FD");
+          printLine("RENDERER: Running 30fps ASCII engine");
+          break;
+
+        case 'date':
+          printLine(new Date().toString());
+          break;
+
+        case 'matrix':
+          printLine("STREAMING HEX BUFFER...");
+          for (let i = 0; i < 4; i++) {
+            setTimeout(() => {
+              const hex = Array.from({length: 6}, () => Math.floor(Math.random()*255).toString(16).padStart(2, '0')).join(' ');
+              printLine(`0x004${i}0: ${hex.toUpperCase()}`, "system-msg");
+            }, i * 150);
+          }
+          break;
+
+        default:
+          printLine(`bash: ${action}: command not found`, "alert");
+          break;
+      }
+    }
+
+    /* ==========================================================
+       3. Right Panel: Real-Time 3D Spinning ASCII Donut
+       ========================================================== */
+    const preTag = document.getElementById("ascii-art");
+    let A = 0;
+    let B = 0;
+
+    function renderAsciiFrame() {
+      const b = [];
+      const z = [];
+      A += 0.05;
+      B += 0.03;
+
+      const cA = Math.cos(A), sA = Math.sin(A);
+      const cB = Math.cos(B), sB = Math.sin(B);
+
+      // Frame dimensions (width: 80, height: 35)
+      const width = 80;
+      const height = 35;
+
+      for (let k = 0; k < width * height; k++) {
+        b[k] = " ";
+        z[k] = 0;
+      }
+
+      // Torus geometry scan loops
+      for (let j = 0; j < 6.28; j += 0.07) {
+        const ct = Math.cos(j), st = Math.sin(j);
+
+        for (let i = 0; i < 6.28; i += 0.02) {
+          const sp = Math.sin(i), cp = Math.cos(i);
+          const h = ct + 2; // R1 + R2
+          const D = 1 / (sp * h * sA + st * cA + 5); // 1/z depth
+          const t = sp * h * cA - st * sA;
+
+          // Projected 2D coordinates
+          const x = 0 | (width / 2 + 30 * D * (cp * h * cB - t * sB));
+          const y = 0 | (height / 2 + 15 * D * (cp * h * sB + t * cB));
+          const o = x + width * y;
+
+          // Luminance calculation
+          const N = 0 | (8 * ((st * sA - sp * ct * cA) * cB - sp * ct * sA - st * cA - cp * ct * sB));
+
+          if (height > y && y > 0 && x > 0 && width > x && D > z[o]) {
+            z[o] = D;
+            // Map luminance index to ASCII ramp
+            b[o] = ".,-~:;=!*#$@"[N > 0 ? N : 0];
+          }
+        }
+      }
+
+      // Format array into a 2D line-broken string
+      let output = "";
+      for (let k = 0; k < width * height; k++) {
+        output += k % width === width - 1 ? "\n" : b[k];
+      }
+
+      preTag.textContent = output;
+    }
+
+    // Run render cycle at roughly 30 FPS
+    setInterval(renderAsciiFrame, 33);
+  </script>
+</body>
+</html>
