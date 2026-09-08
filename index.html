@@ -3,15 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CYBER_CORE // OS v2.04</title>
+  <title>CYBER_CORE // GLOBAL_RECON</title>
   <style>
     :root {
-      --bg-color: #0d110d;
+      --bg-color: #0b0f0b;
       --term-green: #33ff33;
       --dim-green: #1a881a;
       --amber: #ffb000;
-      --border-color: #1e4d1e;
-      --scanline-color: rgba(18, 16, 16, 0.4);
+      --border-color: #1a4d1a;
       --font-stack: "Courier New", Courier, monospace;
     }
 
@@ -32,20 +31,20 @@
       text-shadow: 0 0 5px rgba(51, 255, 51, 0.45);
     }
 
-    /* CRT Scanline & Screen Glow Overlay */
+    /* CRT Scanline and Vignette Effect */
     body::before {
       content: " ";
       display: block;
       position: absolute;
       top: 0; left: 0; bottom: 0; right: 0;
-      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%),
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.35) 50%),
                   linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
       background-size: 100% 3px, 3px 100%;
       z-index: 100;
       pointer-events: none;
     }
 
-    /* Top Navigation / Status Bar */
+    /* Top Navigation / Status Header */
     nav {
       height: 42px;
       border-bottom: 2px solid var(--border-color);
@@ -53,7 +52,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 0 20px;
-      background: #080c08;
+      background: #060906;
       font-size: 0.85rem;
       letter-spacing: 1px;
     }
@@ -95,7 +94,7 @@
     .panel-header {
       background: #112411;
       color: var(--term-green);
-      padding: 5px 12px;
+      padding: 6px 12px;
       font-size: 0.75rem;
       text-transform: uppercase;
       letter-spacing: 1.5px;
@@ -106,7 +105,7 @@
 
     /* Left Console */
     .console-panel {
-      flex: 1.3;
+      flex: 1.2;
     }
 
     .terminal-body {
@@ -155,10 +154,9 @@
       font-size: inherit;
       flex: 1;
       text-shadow: inherit;
-      caret-color: transparent; /* custom cursor used */
+      caret-color: transparent;
     }
 
-    /* Retro Block Cursor attached to input focus */
     .cursor {
       display: inline-block;
       width: 9px;
@@ -174,7 +172,7 @@
       50%, 100% { opacity: 0; }
     }
 
-    /* Right ASCII Canvas Panel */
+    /* Right Visual Panel */
     .visual-panel {
       flex: 1;
       display: flex;
@@ -186,13 +184,16 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #050a05;
+      background: #040704;
       overflow: hidden;
+      padding: 10px;
     }
 
-    pre#ascii-art {
-      font-size: 9px;
-      line-height: 9px;
+    pre#ascii-globe {
+      font-family: "Courier New", Courier, monospace;
+      font-size: 10px;
+      line-height: 10px;
+      letter-spacing: -0.5px;
       color: var(--term-green);
       user-select: none;
       text-align: center;
@@ -201,50 +202,50 @@
 </head>
 <body>
 
-  <!-- Top Navigation / Status Header -->
+  <!-- Top Status/Nav Bar -->
   <nav>
     <div class="nav-left">
-      <span class="badge">SEC_LEVEL: 0</span>
-      <span>SYS_ID: 0xDEADBEEF</span>
-      <span class="alert">[OVERRIDE ACTIVE]</span>
+      <span class="badge">SEC: LEVEL-5</span>
+      <span>SYS_ID: 0x8F04C</span>
+      <span class="alert">[ORBITAL SYNC ACTIVE]</span>
     </div>
     <div class="nav-right">
       <span id="node-clock">00:00:00 UTC</span>
-      <span class="badge">NET: LINKED</span>
+      <span class="badge">SAT_LINK: ONLINE</span>
     </div>
   </nav>
 
-  <!-- Split Screen Workspace -->
+  <!-- Workspace -->
   <div class="workspace">
-    <!-- Left Panel: Interactive Console -->
+    <!-- Left Console -->
     <div class="panel console-panel" id="console-wrapper">
       <div class="panel-header">
         <span>Terminal Emulator // vTY100</span>
-        <span>ROOT@CYBER</span>
+        <span>ROOT@SATCOM</span>
       </div>
       <div class="terminal-body" id="term-logs">
-        <div class="log-line system-msg">CORE INITIALIZED... [OK]</div>
-        <div class="log-line system-msg">ESTABLISHING ENCRYPTED TUNNEL... [DONE]</div>
-        <div class="log-line system-msg">Type 'help' to inspect available instructions.</div>
+        <div class="log-line system-msg">GLOBAL TELEMETRY STREAM INITIALIZED... [OK]</div>
+        <div class="log-line system-msg">GEOGRAPHIC RADAR SYNCED TO ORBITER #04...</div>
+        <div class="log-line system-msg">Type 'help' for command directory.</div>
         <br />
       </div>
       <div style="padding: 10px 15px; border-top: 1px solid var(--border-color);">
         <div class="input-line">
-          <span class="prompt">root@node:~#</span>
+          <span class="prompt">recon@terminal:~$</span>
           <input type="text" id="term-input" class="cli-input" autofocus autocomplete="off" spellcheck="false" />
           <span class="cursor"></span>
         </div>
       </div>
     </div>
 
-    <!-- Right Panel: Moving 3D ASCII Animation -->
+    <!-- Right ASCII Globe -->
     <div class="panel visual-panel">
       <div class="panel-header">
-        <span>VECTOR PROJECTION // TORUS MATRIX</span>
-        <span>FPS: 30</span>
+        <span>PLANETARY TRACKER // PROJECTION [ORTHO]</span>
+        <span id="coords-display">LAT: +23.4° | LON: 0.0°</span>
       </div>
       <div class="ascii-canvas-container">
-        <pre id="ascii-art"></pre>
+        <pre id="ascii-globe"></pre>
       </div>
     </div>
   </div>
@@ -261,13 +262,12 @@
     updateClock();
 
     /* ==========================================================
-       2. Left Panel: Interactive Terminal
+       2. Left Console Logic
        ========================================================== */
     const termInput = document.getElementById('term-input');
     const termLogs = document.getElementById('term-logs');
     const consoleWrapper = document.getElementById('console-wrapper');
 
-    // Click anywhere on console to focus input
     consoleWrapper.addEventListener('click', () => termInput.focus());
 
     termInput.addEventListener('keydown', function (e) {
@@ -290,20 +290,18 @@
     }
 
     function handleCommand(cmd) {
-      // Echo input
-      printLine(`root@node:~# ${cmd}`);
-
+      printLine(`recon@terminal:~$ ${cmd}`);
       const parts = cmd.toLowerCase().split(' ');
       const action = parts[0];
 
       switch (action) {
         case 'help':
-          printLine("Available commands:");
-          printLine("  help     - display available instructions");
-          printLine("  clear    - clear console buffer");
-          printLine("  status   - check subsystem health");
-          printLine("  matrix   - run simulated buffer stream");
-          printLine("  date     - print current node timestamp");
+          printLine("Available directives:");
+          printLine("  help      - display available instructions");
+          printLine("  clear     - wipe local console buffer");
+          printLine("  status    - run orbital sensor diagnostics");
+          printLine("  target    - lock on target coordinates");
+          printLine("  speed <n> - set rotation speed multiplier (e.g. speed 2)");
           break;
 
         case 'clear':
@@ -311,94 +309,135 @@
           break;
 
         case 'status':
-          printLine("CORE: OK");
-          printLine("MEM_USAGE: 3.2% allocated");
-          printLine("NETWORK: 1Gbps FD");
-          printLine("RENDERER: Running 30fps ASCII engine");
+          printLine("ORBITAL INCLINATION: 23.44°");
+          printLine("BEARING: AUTO-SPIN ACTIVE");
+          printLine("RESOLUTION: 60x34 CHARACTER CELLS");
+          printLine("SIGNAL LOSS: 0.00%");
           break;
 
-        case 'date':
-          printLine(new Date().toString());
+        case 'target':
+          printLine("[!] ACQUIRING SATELLITE LOCK...", "system-msg");
+          setTimeout(() => {
+            const lat = (Math.random() * 140 - 70).toFixed(2);
+            const lon = (Math.random() * 360 - 180).toFixed(2);
+            printLine(`[+] TARGET PINPOINTED: ${lat}° N, ${lon}° E`, "alert");
+          }, 400);
           break;
 
-        case 'matrix':
-          printLine("STREAMING HEX BUFFER...");
-          for (let i = 0; i < 4; i++) {
-            setTimeout(() => {
-              const hex = Array.from({length: 6}, () => Math.floor(Math.random()*255).toString(16).padStart(2, '0')).join(' ');
-              printLine(`0x004${i}0: ${hex.toUpperCase()}`, "system-msg");
-            }, i * 150);
+        case 'speed':
+          const val = parseFloat(parts[1]);
+          if (!isNaN(val)) {
+            globeSpeed = 0.03 * val;
+            printLine(`Rotation speed adjusted to ${val}x`);
+          } else {
+            printLine("Usage: speed <multiplier> (e.g. speed 1.5)", "alert");
           }
           break;
 
         default:
-          printLine(`bash: ${action}: command not found`, "alert");
+          printLine(`command not recognized: '${action}'`, "alert");
           break;
       }
     }
 
     /* ==========================================================
-       3. Right Panel: Real-Time 3D Spinning ASCII Donut
+       3. Right Panel: 3D Rotating ASCII Globe Engine
        ========================================================== */
-    const preTag = document.getElementById("ascii-art");
-    let A = 0;
-    let B = 0;
+    const globePre = document.getElementById("ascii-globe");
+    const coordsDisplay = document.getElementById("coords-display");
 
-    function renderAsciiFrame() {
-      const b = [];
-      const z = [];
-      A += 0.05;
-      B += 0.03;
+    const COLS = 60;
+    const ROWS = 32;
+    const RADIUS = 14;
+    const ASPECT_RATIO = 0.55; // Corrects vertical character height elongation
 
-      const cA = Math.cos(A), sA = Math.sin(A);
-      const cB = Math.cos(B), sB = Math.sin(B);
+    let rotationAngle = 0;
+    let globeSpeed = 0.03;
+    const tilt = 0.35; // ~20 degree axial tilt
+    const cosTilt = Math.cos(tilt);
+    const sinTilt = Math.sin(tilt);
 
-      // Frame dimensions (width: 80, height: 35)
-      const width = 80;
-      const height = 35;
-
-      for (let k = 0; k < width * height; k++) {
-        b[k] = " ";
-        z[k] = 0;
-      }
-
-      // Torus geometry scan loops
-      for (let j = 0; j < 6.28; j += 0.07) {
-        const ct = Math.cos(j), st = Math.sin(j);
-
-        for (let i = 0; i < 6.28; i += 0.02) {
-          const sp = Math.sin(i), cp = Math.cos(i);
-          const h = ct + 2; // R1 + R2
-          const D = 1 / (sp * h * sA + st * cA + 5); // 1/z depth
-          const t = sp * h * cA - st * sA;
-
-          // Projected 2D coordinates
-          const x = 0 | (width / 2 + 30 * D * (cp * h * cB - t * sB));
-          const y = 0 | (height / 2 + 15 * D * (cp * h * sB + t * cB));
-          const o = x + width * y;
-
-          // Luminance calculation
-          const N = 0 | (8 * ((st * sA - sp * ct * cA) * cB - sp * ct * sA - st * cA - cp * ct * sB));
-
-          if (height > y && y > 0 && x > 0 && width > x && D > z[o]) {
-            z[o] = D;
-            // Map luminance index to ASCII ramp
-            b[o] = ".,-~:;=!*#$@"[N > 0 ? N : 0];
-          }
-        }
-      }
-
-      // Format array into a 2D line-broken string
-      let output = "";
-      for (let k = 0; k < width * height; k++) {
-        output += k % width === width - 1 ? "\n" : b[k];
-      }
-
-      preTag.textContent = output;
+    // Procedural noise function for continuous landmass clusters
+    function getLandPattern(lon, lat) {
+      let v = Math.sin(lat * 2.5) * Math.cos(lon * 2.0)
+            + 0.5 * Math.sin(lat * 5.0 + lon * 3.0)
+            + 0.25 * Math.cos(lon * 8.0 - lat * 4.0);
+      return v > 0.15; // Land threshold
     }
 
-    // Run render cycle at roughly 30 FPS
-    setInterval(renderAsciiFrame, 33);
+    function renderGlobe() {
+      rotationAngle += globeSpeed;
+      if (rotationAngle > Math.PI * 2) rotationAngle -= Math.PI * 2;
+
+      // Update Top Panel Coordinates
+      const currentDeg = ((rotationAngle * (180 / Math.PI)) % 360).toFixed(1);
+      coordsDisplay.innerText = `TILT: +20.0° | ROTATION: ${currentDeg}°`;
+
+      let screen = [];
+
+      for (let y = 0; y < ROWS; y++) {
+        let rowStr = "";
+        const ny = (y - ROWS / 2) / ASPECT_RATIO;
+
+        for (let x = 0; x < COLS; x++) {
+          const nx = x - COLS / 2;
+          const distSq = nx * nx + ny * ny;
+
+          if (distSq <= RADIUS * RADIUS) {
+            // Front-facing sphere surface depth
+            const nz = Math.sqrt(RADIUS * RADIUS - distSq);
+
+            // Unit sphere vector (before rotation)
+            const ux = nx / RADIUS;
+            const uy = ny / RADIUS;
+            const uz = nz / RADIUS;
+
+            // Apply Earth axial tilt
+            const rx = ux;
+            const ry = uy * cosTilt - uz * sinTilt;
+            const rz = uy * sinTilt + uz * cosTilt;
+
+            // Compute spherical coordinates (Latitude / Longitude)
+            const lat = Math.asin(Math.max(-1, Math.min(1, ry)));
+            let lon = Math.atan2(rx, rz) + rotationAngle;
+
+            // Grid lines check (Equator, Tropics & Longitude meridians)
+            const isLatLine = Math.abs(lat % (Math.PI / 6)) < 0.07;
+            const isLonLine = Math.abs(lon % (Math.PI / 6)) < 0.07;
+
+            // Geographic terrain check
+            const isLand = getLandPattern(lon, lat);
+
+            // Light dot product for 3D curved sphere shading
+            const dotLight = (ux * 0.4 - uy * 0.3 + uz * 0.8);
+
+            if (isLand) {
+              // Detailed characters for continents with lighting
+              rowStr += dotLight > 0.6 ? "#" : "%";
+            } else if (isLatLine || isLonLine) {
+              // Coordinate latitude / longitude grid wireframe
+              rowStr += "+";
+            } else {
+              // Ocean surface / subtle shade
+              if (dotLight > 0.7) rowStr += "=";
+              else if (dotLight > 0.4) rowStr += "-";
+              else rowStr += ".";
+            }
+          } else if (distSq <= (RADIUS + 0.8) * (RADIUS + 0.8)) {
+            // Atmospheric outer limb glow
+            rowStr += ":";
+          } else {
+            // Deep space empty cell
+            rowStr += " ";
+          }
+        }
+        screen.push(rowStr);
+      }
+
+      globePre.textContent = screen.join("\n");
+    }
+
+    setInterval(renderGlobe, 40);
   </script>
 </body>
 </html>
